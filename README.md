@@ -87,8 +87,10 @@ _Dans la ligne de commande client_
 ```./c2_client```
 
 ### Compilation du blocage de fichier
+Créer un ficher 'touch /tmp/secret.txt'
 ```gcc -shared -o hook_files.so hook_files.c -fPIC -ldl```
 ```export LD_PRELOAD=$PWD/hook_files.so```
+Puis se diriger vers le fichier '/tmp/secret.txt'
 
 
 
