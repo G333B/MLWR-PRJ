@@ -50,16 +50,16 @@ Donc un thread est beaucoup plus judicieux qu'un processus complet car moins co�
 
 Commandes linux notables :
 
-#suivre la trace de la connexion ssh
+#suivre la trace de la connexion ssh  
 strace -o toto.txt ssh username@IP-address
 
-#compiler et créer notre bibliothèque partagée 
+#compiler et créer notre bibliothèque partagée  
 gcc -fPIC -shared -o lib.so code.c
 
-#lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE biblio
+#lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE biblio 
 LD_PRELOAD=./libmalware.so ssh username@IPaddress
 
-#modifier les fichiers de config ssh 
+#modifier les fichiers de config ssh  
 nano /etc/ssh/sshd_config
 nano /etc/pam.d/sshd
 
