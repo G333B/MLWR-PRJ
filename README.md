@@ -46,3 +46,35 @@ On utilise donc des threads qui sont une version allégée d'un processus. Ce so
 Un processus avce 2 threads par xemple, aura donc 2 piles (une par thread). (l'espace mémoire d'un processus comprend : une partie destinée au noyau qui va gérer la partie système, une partie pile, tas et bibliothèques qui concernent à elles trois les données, et une partie pour le code.
 La pile est l'endroit d'un espace mémoire qui va stocker les variables locales et les adresses de retour des fonctions, elle fait partie des éléments de l'espace mémoire qui gère les données (avec les bibliothèques et le tas (malloc)).
 Donc un thread est beaucoup plus judicieux qu'un processus complet car moins coûteux et plus abile.
+
+
+Commandes linux notables :
+
+#suivre la trace de la connexion ssh
+strace -o toto.txt ssh username@IP-address
+
+#compiler et créer notre bibliothèque partagée 
+gcc -fPIC -shared -o lib.so code.c
+
+#lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE biblio
+LD_PRELOAD=./libmalware.so ssh username@IPaddress
+
+#modifier les fichiers de config ssh 
+nano /etc/ssh/sshd_config
+nano /etc/pam.d/sshd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
