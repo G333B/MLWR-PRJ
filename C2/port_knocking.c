@@ -14,7 +14,7 @@ void wait_for_knock() {
     struct sockaddr_in serv_addr, client_addr;
     socklen_t addr_size = sizeof(client_addr);
 
-    printf("[C2] Attente de la séquence de port knocking...\n");
+    printf(">> [C2] Attente de la séquence de port knocking...\n");
 
     while (knock_index < sizeof(knock_sequence) / sizeof(knock_sequence[0])) {
         sock_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -25,13 +25,13 @@ void wait_for_knock() {
         bind(sock_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
         listen(sock_fd, 1);
 
-        printf("[+] Attente sur le port %d...\n", knock_sequence[knock_index]);
+        printf(">> Attente sur le port %d...\n", knock_sequence[knock_index]);
         accept(sock_fd, (struct sockaddr*)&client_addr, &addr_size);
-        printf("[+] Knock reçu sur %d\n", knock_sequence[knock_index]);
+        printf(">> Knock reçu sur %d\n", knock_sequence[knock_index]);
 
         close(sock_fd);
         knock_index++;
     }
 
-    printf("[C2] Séquence correcte ! Activation du port %d\n", SECRET_PORT);
+    printf(">> [C2] Séquence correcte ! Activation du port %d\n", SECRET_PORT);
 }

@@ -6,9 +6,9 @@
 #include <dlfcn.h>
 #include <fcntl.h>  
 #include <errno.h>   
-#include <stdarg.h>  // Ajouté pour gérer les arguments variables
+#include <stdarg.h>  
 
-// Pointeur vers la vraie fonction open
+// Pointeur vers fonction open
 static int (*real_open)(const char *pathname, int flags, ...) = NULL;
 
 void init() {
@@ -17,15 +17,15 @@ void init() {
     }
 }
 
-// Hook de open() pour empêcher l'ouverture de certains fichiers
+// open() pour empêcher l'ouverture du fichier /tmp/secret.txt
 int open(const char *pathname, int flags, ...) {
     init();
 
-    // Liste de fichiers à bloquer
+    
     const char *blocked_file = "/tmp/secret.txt";
 
     if (strstr(pathname, blocked_file) != NULL) {
-        // Log le blocage de l'ouverture du fichier
+        
         FILE *logfile = fopen("/tmp/.ssh_logs", "a");
         if (logfile) {
             fprintf(logfile, "[BLOCK] Attempt to open blocked file: %s\n", pathname);
@@ -37,12 +37,12 @@ int open(const char *pathname, int flags, ...) {
         return -1;
     }
 
-    // Gérer le mode facultatif
+    
     va_list args;
     va_start(args, flags);
     mode_t mode = va_arg(args, mode_t);
     va_end(args);
 
-    // Appeler la vraie fonction open avec les bons arguments
+    // Appeler de la fonction open() originale
     return real_open(pathname, flags, mode);
 }

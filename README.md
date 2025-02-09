@@ -5,7 +5,7 @@ Johanna MEGUEDAD 3SI5
 Nous allons travailler sur des machines virtuelles Kali Linux.
 Nous allons créer un malware en langage C basé sur la manipulation de la variable d'environnement linux LD_PRELOAD.
 
-LD_PRELOAD permet de forcer le chargement d'une bibliothèque indiquée avant TOUTES les autres, c'est pour cette raison que nous nous en servirons.
+**LD_PRELOAD** permet de forcer le chargement d'une bibliothèque indiquée avant TOUTES les autres, c'est pour cette raison que nous nous en servirons.
 
 Ce malware permettra, lorsqu'il sera exécuté, de récupérer les identifiants de la victime qui se connecte en ssh (nous allons modifier le comportement des fonctions 'write()' et 'read()').
 
@@ -30,13 +30,13 @@ Nous utilisons le port 4444 car il n'est pas standard (discrétion) et ne néces
 
 Enfin, nous créerons un malware qui capturera les clés ssh de notre victime. 
 
-Linker : 
+## Linker : 
 
 Programme qui va assembler des fichiers objets pour créer un exécutable ou une bibliothèque partagée (notre cas actuel).
 Linker statique -> pas besoin de bibliothèques externes mais charge toutes les bibli utilisées dans l'exécutable final (donc plus lourd)
 Linker dynamique -> Ce que nous avons utilisé. Utilise des bibliothèques partagées (.so) qui sont chargées au moment de l'exécution donc moins lourd)
 
-Threads :
+## Threads :
 
 Un thread linux ets une "partie" d'un processus (on peut exécuter des threads en parallèle à condition qu'il n'y ait pas de conflit -> le pointeur de 2 threads d'un même processus pointe sur le même élément -> conflit).
 C'est le noyau qui gère l'exécution des processus et leur répartition dans le temps et dans la mémoire.
@@ -50,23 +50,24 @@ Donc un thread est beaucoup plus judicieux qu'un processus complet car moins co�
 
 Commandes linux notables :
 
-#suivre la trace de la connexion ssh  
-strace -o toto.txt ssh username@IP-address
+### suivre la trace de la connexion ssh  
+``` strace -o toto.txt ssh username@IP-address```
 
-#compiler et créer notre bibliothèque partagée  
-gcc -fPIC -shared -o lib.so code.c
+### compiler et créer notre bibliothèque partagée
+```gcc -fPIC -shared -o lib.so code.c```
 
-#lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE biblio    
-LD_PRELOAD=./libmalware.so ssh username@IPaddress
+### lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE bibliothèque
+```  LD_PRELOAD=./libmalware.so ssh username@IPaddress```
 
-#modifier les fichiers de config ssh  
-nano /etc/ssh/sshd_config
-nano /etc/pam.d/sshd
+### modifier les fichiers de config ssh  
+```nano /etc/ssh/sshd_config
+nano /etc/pam.d/sshd ```
 
-#permet de compiler et lancer le serveur         
+### permet de compiler et lancer le serveur 
+```        
 gcc -o ssh_serv ssh_serv.c
 ./ssh_serv
-
+```
 
 
 

