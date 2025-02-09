@@ -56,7 +56,7 @@ strace -o toto.txt ssh username@IP-address
 #compiler et créer notre bibliothèque partagée  
 gcc -fPIC -shared -o lib.so code.c
 
-#lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE biblio 
+#lancer la connexion ssh avec LD_PRELOAD pour charger NOTRE biblio    
 LD_PRELOAD=./libmalware.so ssh username@IPaddress
 
 #modifier les fichiers de config ssh  
