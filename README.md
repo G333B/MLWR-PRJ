@@ -63,6 +63,9 @@ LD_PRELOAD=./libmalware.so ssh username@IPaddress
 nano /etc/ssh/sshd_config
 nano /etc/pam.d/sshd
 
+#permet de compiler et lancer le serveur         
+gcc -o ssh_serv ssh_serv.c
+./ssh_serv
 
 
 
